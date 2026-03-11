@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Dual Logic Thermostat",
+        "description": "Configure your smart thermostat. At least one switch is required.",
+        "data": {
+          "name": "Name",
+          "sensor": "Temperature Sensor",
+          "heater": "Heating Switch (optional)",
+          "cooler": "Cooling Switch (optional)",
+          "heat_setpoint": "Heating Setpoint (°C)",
+          "cool_setpoint": "Cooling Setpoint (°C)",
+          "hot_tolerance": "Hot Tolerance (°C)",
+          "cold_tolerance": "Cold Tolerance (°C)",
+          "min_temp": "Minimum Temperature (°C)",
+          "max_temp": "Maximum Temperature (°C)",
+          "initial_hvac_mode": "Initial HVAC Mode"
+        },
+        "data_description": {
+          "heat_setpoint": "Heating turns on below this temperature (minus cold tolerance) and off above it (plus cold tolerance).",
+          "cool_setpoint": "Cooling turns on above this temperature (plus hot tolerance) and off below it (minus hot tolerance).",
+          "hot_tolerance": "Dead band above the cooling setpoint before cooling activates.",
+          "cold_tolerance": "Dead band below the heating setpoint before heating activates."
+        }
+      }
+    },
+    "error": {
+      "no_switch_configured": "You must configure at least one heating or cooling switch.",
+      "setpoints_overlap": "The heating setpoint must be lower than the cooling setpoint."
+    },
+    "abort": {
+      "already_configured": "This thermostat is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Dual Logic Thermostat Options",
+        "data": {
+          "name": "Name",
+          "sensor": "Temperature Sensor",
+          "heater": "Heating Switch (optional)",
+          "cooler": "Cooling Switch (optional)",
+          "heat_setpoint": "Heating Setpoint (°C)",
+          "cool_setpoint": "Cooling Setpoint (°C)",
+          "hot_tolerance": "Hot Tolerance (°C)",
+          "cold_tolerance": "Cold Tolerance (°C)",
+          "min_temp": "Minimum Temperature (°C)",
+          "max_temp": "Maximum Temperature (°C)",
+          "initial_hvac_mode": "Initial HVAC Mode"
+        }
+      }
+    },
+    "error": {
+      "no_switch_configured": "You must configure at least one heating or cooling switch.",
+      "setpoints_overlap": "The heating setpoint must be lower than the cooling setpoint."
+    }
+  }
+}
