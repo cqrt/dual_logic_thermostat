@@ -2,10 +2,11 @@
   "domain": "dual_logic_thermostat",
   "name": "Dual Logic Thermostat",
   "version": "1.0.0",
-  "documentation": "https://github.com/home-assistant/dual_logic_thermostat",
+  "documentation": "https://github.com/cqrt/dual_logic_thermostat",
+  "issue_tracker": "https://github.com/cqrt/dual_logic_thermostat/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@cqrt"],
   "iot_class": "local_polling",
   "config_flow": true
 }
