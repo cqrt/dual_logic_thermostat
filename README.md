@@ -12,15 +12,9 @@ Copy `custom_components/dual_logic_thermostat/` into your HA config directory:
 config/custom_components/dual_logic_thermostat/
 ```
 
-### Step 2 — Copy the icon (required for integration search icon)
-Copy `dual_logic_thermostat_icon.png` into your HA `www/` folder:
-```
-config/www/dual_logic_thermostat_icon.png
-```
+### Step 2 — Restart Home Assistant
 
-### Step 3 — Restart Home Assistant
-
-### Step 4 — Add the integration
+### Step 3 — Add the integration
 **Settings → Devices & Services → Add Integration → search "Dual Logic Thermostat"**
 
 ---
