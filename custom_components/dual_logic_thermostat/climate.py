@@ -138,10 +138,9 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         if heater_entity_id and cooler_entity_id:
             self._hvac_modes.append(HVACMode.HEAT_COOL)
 
-        # Supported features — always range so both setpoints are exposed in the UI
-        self._attr_supported_features = (
-            ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
-            | ClimateEntityFeature.TURN_ON
+        # Base features — mode-specific features handled via property
+        self._base_features = (
+            ClimateEntityFeature.TURN_ON
             | ClimateEntityFeature.TURN_OFF
         )
 
@@ -157,6 +156,22 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
     @property
     def hvac_modes(self) -> list[HVACMode]:
         return self._hvac_modes
+
+    @property
+    def supported_features(self) -> ClimateEntityFeature:
+        """Return supported features based on current HVAC mode."""
+        if self._attr_hvac_mode == HVACMode.HEAT_COOL:
+            return self._base_features | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+        return self._base_features | ClimateEntityFeature.TARGET_TEMPERATURE
+
+    @property
+    def target_temperature(self) -> float | None:
+        """Return the single target temperature for heat or cool mode."""
+        if self._attr_hvac_mode == HVACMode.HEAT:
+            return self._attr_target_temperature_low
+        if self._attr_hvac_mode == HVACMode.COOL:
+            return self._attr_target_temperature_high
+        return None
 
     @property
     def current_temperature(self) -> float | None:
@@ -300,9 +315,12 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
             self._attr_target_temperature_low = float(low)
         if (high := kwargs.get(ATTR_TARGET_TEMP_HIGH)) is not None:
             self._attr_target_temperature_high = float(high)
-        # Fallback for single-value calls
+        # Single setpoint — route to the correct setpoint based on mode
         if (temp := kwargs.get(ATTR_TEMPERATURE)) is not None:
-            self._attr_target_temperature = float(temp)
+            if self._attr_hvac_mode == HVACMode.HEAT:
+                self._attr_target_temperature_low = float(temp)
+            elif self._attr_hvac_mode == HVACMode.COOL:
+                self._attr_target_temperature_high = float(temp)
         await self._async_control()
         self.async_write_ha_state()
 
