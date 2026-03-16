@@ -139,7 +139,11 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
             self._hvac_modes.append(HVACMode.HEAT_COOL)
 
         # Supported features — always range so both setpoints are exposed in the UI
-        self._attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+        self._attr_supported_features = (
+            ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+            | ClimateEntityFeature.TURN_ON
+            | ClimateEntityFeature.TURN_OFF
+        )
 
         if initial_hvac_mode and initial_hvac_mode in self._hvac_modes:
             self._attr_hvac_mode = HVACMode(initial_hvac_mode)
