@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sync to HA",
+      "type": "shell",
+      "command": "robocopy",
+      "args": [
+        "${workspaceFolder}\\custom_components\\dual_logic_thermostat",
+        "V:\\custom_components\\dual_logic_thermostat",
+        "/MIR",
+        "/NFL",
+        "/NDL"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": ".*",
+        "cmd": "robocopy \"${workspaceFolder}\\custom_components\\dual_logic_thermostat\" \"V:\\custom_components\\dual_logic_thermostat\" /MIR /NFL /NDL"
+      }
+    ]
+  }
+}
