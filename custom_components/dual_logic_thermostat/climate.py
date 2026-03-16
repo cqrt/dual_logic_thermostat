@@ -121,6 +121,7 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         self._keep_alive = keep_alive
         self._cur_temp: float | None = None
         self._active = False
+        self._last_hvac_mode: HVACMode | None = None
         self._temp_lock = asyncio.Lock()
         self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_target_temperature_step = 0.1
@@ -197,13 +198,16 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return {
+        attrs = {
             "heater_entity": self._heater_entity_id,
             "cooler_entity": self._cooler_entity_id,
             "sensor_entity": self._sensor_entity_id,
             "cold_tolerance": self._cold_tolerance,
             "hot_tolerance": self._hot_tolerance,
         }
+        if self._last_hvac_mode is not None:
+            attrs["last_hvac_mode"] = self._last_hvac_mode.value
+        return attrs
 
     # ------------------------------------------------------------------
     # Helpers
@@ -231,6 +235,13 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
                 self._attr_target_temperature_low = float(low)
             if (high := attrs.get("target_temp_high")) is not None:
                 self._attr_target_temperature_high = float(high)
+            if (last := attrs.get("last_hvac_mode")) is not None:
+                try:
+                    restored = HVACMode(last)
+                    if restored in self._hvac_modes and restored != HVACMode.OFF:
+                        self._last_hvac_mode = restored
+                except ValueError:
+                    pass
 
         # Track sensor
         self.async_on_remove(
@@ -291,6 +302,11 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
     # ------------------------------------------------------------------
 
     async def async_turn_on(self) -> None:
+        # Restore the last active mode if we have one
+        if self._last_hvac_mode is not None:
+            await self.async_set_hvac_mode(self._last_hvac_mode)
+            return
+        # No history — fall back to the best available mode
         if HVACMode.HEAT_COOL in self._hvac_modes:
             await self.async_set_hvac_mode(HVACMode.HEAT_COOL)
         elif HVACMode.HEAT in self._hvac_modes:
@@ -305,6 +321,9 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         if hvac_mode not in self._hvac_modes:
             _LOGGER.warning("Unsupported HVAC mode: %s", hvac_mode)
             return
+        # Remember the last active mode before turning off
+        if hvac_mode == HVACMode.OFF and self._attr_hvac_mode != HVACMode.OFF:
+            self._last_hvac_mode = self._attr_hvac_mode
         self._attr_hvac_mode = hvac_mode
         await self._async_control()
         self.async_write_ha_state()
