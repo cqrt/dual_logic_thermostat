@@ -20,6 +20,7 @@ from .const import (
     CONF_HOT_TOLERANCE,
     CONF_INITIAL_HVAC_MODE,
     CONF_MAX_TEMP,
+    CONF_MIN_CYCLE_DURATION,
     CONF_MIN_TEMP,
     CONF_SENSOR,
     DEFAULT_COLD_TOLERANCE,
@@ -94,6 +95,12 @@ def _get_schema(defaults: dict) -> vol.Schema:
                         HVACMode.HEAT_COOL,
                     ]
                 )
+            ),
+            vol.Optional(
+                CONF_MIN_CYCLE_DURATION,
+                default=defaults.get(CONF_MIN_CYCLE_DURATION, 0),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=600, step=5, mode="box", unit_of_measurement="s")
             ),
         }
     )

@@ -9,19 +9,21 @@
           "sensor": "Temperature Sensor",
           "heater": "Heating Switch (optional)",
           "cooler": "Cooling Switch (optional)",
-          "heat_setpoint": "Heating Setpoint (°C)",
-          "cool_setpoint": "Cooling Setpoint (°C)",
-          "hot_tolerance": "Hot Tolerance (°C)",
-          "cold_tolerance": "Cold Tolerance (°C)",
-          "min_temp": "Minimum Temperature (°C)",
-          "max_temp": "Maximum Temperature (°C)",
-          "initial_hvac_mode": "Initial HVAC Mode"
+          "heat_setpoint": "Heating Setpoint (\u00b0C)",
+          "cool_setpoint": "Cooling Setpoint (\u00b0C)",
+          "hot_tolerance": "Hot Tolerance (\u00b0C)",
+          "cold_tolerance": "Cold Tolerance (\u00b0C)",
+          "min_temp": "Minimum Temperature (\u00b0C)",
+          "max_temp": "Maximum Temperature (\u00b0C)",
+          "initial_hvac_mode": "Initial HVAC Mode",
+          "min_cycle_duration": "Minimum Cycle Duration (s)"
         },
         "data_description": {
           "heat_setpoint": "Heating turns on below this temperature (minus cold tolerance) and off above it (plus cold tolerance).",
           "cool_setpoint": "Cooling turns on above this temperature (plus hot tolerance) and off below it (minus hot tolerance).",
           "hot_tolerance": "Dead band above the cooling setpoint before cooling activates.",
-          "cold_tolerance": "Dead band below the heating setpoint before heating activates."
+          "cold_tolerance": "Dead band below the heating setpoint before heating activates.",
+          "min_cycle_duration": "Minimum time in seconds a switch must stay on or off before it can change state. Set to 0 to disable. Useful for protecting physical HVAC equipment from rapid cycling."
         }
       }
     },
@@ -42,13 +44,17 @@
           "sensor": "Temperature Sensor",
           "heater": "Heating Switch (optional)",
           "cooler": "Cooling Switch (optional)",
-          "heat_setpoint": "Heating Setpoint (°C)",
-          "cool_setpoint": "Cooling Setpoint (°C)",
-          "hot_tolerance": "Hot Tolerance (°C)",
-          "cold_tolerance": "Cold Tolerance (°C)",
-          "min_temp": "Minimum Temperature (°C)",
-          "max_temp": "Maximum Temperature (°C)",
-          "initial_hvac_mode": "Initial HVAC Mode"
+          "heat_setpoint": "Heating Setpoint (\u00b0C)",
+          "cool_setpoint": "Cooling Setpoint (\u00b0C)",
+          "hot_tolerance": "Hot Tolerance (\u00b0C)",
+          "cold_tolerance": "Cold Tolerance (\u00b0C)",
+          "min_temp": "Minimum Temperature (\u00b0C)",
+          "max_temp": "Maximum Temperature (\u00b0C)",
+          "initial_hvac_mode": "Initial HVAC Mode",
+          "min_cycle_duration": "Minimum Cycle Duration (s)"
+        },
+        "data_description": {
+          "min_cycle_duration": "Minimum time in seconds a switch must stay on or off before it can change state. Set to 0 to disable. Useful for protecting physical HVAC equipment from rapid cycling."
         }
       }
     },

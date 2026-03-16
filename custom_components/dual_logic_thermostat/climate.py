@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.climate import (
@@ -43,6 +43,7 @@ from .const import (
     CONF_INITIAL_HVAC_MODE,
     CONF_KEEP_ALIVE,
     CONF_MAX_TEMP,
+    CONF_MIN_CYCLE_DURATION,
     CONF_MIN_TEMP,
     CONF_SENSOR,
     DEFAULT_COLD_TOLERANCE,
@@ -80,6 +81,7 @@ async def async_setup_entry(
                 max_temp=config.get(CONF_MAX_TEMP, DEFAULT_MAX_TEMP),
                 initial_hvac_mode=config.get(CONF_INITIAL_HVAC_MODE),
                 keep_alive=config.get(CONF_KEEP_ALIVE),
+                min_cycle_duration=config.get(CONF_MIN_CYCLE_DURATION, 0),
             )
         ]
     )
@@ -106,6 +108,7 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         max_temp: float,
         initial_hvac_mode: str | None,
         keep_alive: timedelta | None,
+        min_cycle_duration: int = 0,
     ) -> None:
         """Initialize the thermostat."""
         self._attr_name = name
@@ -122,6 +125,10 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         self._cur_temp: float | None = None
         self._active = False
         self._last_hvac_mode: HVACMode | None = None
+        self._min_cycle_duration = timedelta(seconds=min_cycle_duration) if min_cycle_duration else None
+        # Track the last time each switch changed state
+        self._heater_last_change: datetime | None = None
+        self._cooler_last_change: datetime | None = None
         self._temp_lock = asyncio.Lock()
         self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_target_temperature_step = 0.1
@@ -377,8 +384,6 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
           ON  when temp falls below  setpoint - cold_tolerance
           OFF when temp rises above  setpoint + cold_tolerance
         """
-        is_on = self._heater_entity_id and self._is_switch_on(self._heater_entity_id)
-
         if cur <= setpoint - self._cold_tolerance:
             await self._heater_on()
         elif cur >= setpoint + self._cold_tolerance:
@@ -405,25 +410,51 @@ class SmartThermostat(ClimateEntity, RestoreEntity):
         await self._heater_off()
         await self._cooler_off()
 
+    def _min_cycle_elapsed(self, last_change: datetime | None) -> bool:
+        """Return True if enough time has passed since the last switch change."""
+        if self._min_cycle_duration is None or last_change is None:
+            return True
+        return datetime.now() - last_change >= self._min_cycle_duration
+
     async def _heater_on(self) -> None:
-        if self._heater_entity_id and not self._is_switch_on(self._heater_entity_id):
-            _LOGGER.debug("Turning on heater: %s", self._heater_entity_id)
-            await self._call_switch(SERVICE_TURN_ON, self._heater_entity_id)
+        if not self._heater_entity_id or self._is_switch_on(self._heater_entity_id):
+            return
+        if not self._min_cycle_elapsed(self._heater_last_change):
+            _LOGGER.debug("Heater on blocked — min cycle duration not elapsed")
+            return
+        _LOGGER.debug("Turning on heater: %s", self._heater_entity_id)
+        await self._call_switch(SERVICE_TURN_ON, self._heater_entity_id)
+        self._heater_last_change = datetime.now()
 
     async def _heater_off(self) -> None:
-        if self._heater_entity_id and self._is_switch_on(self._heater_entity_id):
-            _LOGGER.debug("Turning off heater: %s", self._heater_entity_id)
-            await self._call_switch(SERVICE_TURN_OFF, self._heater_entity_id)
+        if not self._heater_entity_id or not self._is_switch_on(self._heater_entity_id):
+            return
+        if not self._min_cycle_elapsed(self._heater_last_change):
+            _LOGGER.debug("Heater off blocked — min cycle duration not elapsed")
+            return
+        _LOGGER.debug("Turning off heater: %s", self._heater_entity_id)
+        await self._call_switch(SERVICE_TURN_OFF, self._heater_entity_id)
+        self._heater_last_change = datetime.now()
 
     async def _cooler_on(self) -> None:
-        if self._cooler_entity_id and not self._is_switch_on(self._cooler_entity_id):
-            _LOGGER.debug("Turning on cooler: %s", self._cooler_entity_id)
-            await self._call_switch(SERVICE_TURN_ON, self._cooler_entity_id)
+        if not self._cooler_entity_id or self._is_switch_on(self._cooler_entity_id):
+            return
+        if not self._min_cycle_elapsed(self._cooler_last_change):
+            _LOGGER.debug("Cooler on blocked — min cycle duration not elapsed")
+            return
+        _LOGGER.debug("Turning on cooler: %s", self._cooler_entity_id)
+        await self._call_switch(SERVICE_TURN_ON, self._cooler_entity_id)
+        self._cooler_last_change = datetime.now()
 
     async def _cooler_off(self) -> None:
-        if self._cooler_entity_id and self._is_switch_on(self._cooler_entity_id):
-            _LOGGER.debug("Turning off cooler: %s", self._cooler_entity_id)
-            await self._call_switch(SERVICE_TURN_OFF, self._cooler_entity_id)
+        if not self._cooler_entity_id or not self._is_switch_on(self._cooler_entity_id):
+            return
+        if not self._min_cycle_elapsed(self._cooler_last_change):
+            _LOGGER.debug("Cooler off blocked — min cycle duration not elapsed")
+            return
+        _LOGGER.debug("Turning off cooler: %s", self._cooler_entity_id)
+        await self._call_switch(SERVICE_TURN_OFF, self._cooler_entity_id)
+        self._cooler_last_change = datetime.now()
 
     async def _call_switch(self, service: str, entity_id: str) -> None:
         await self.hass.services.async_call(
