@@ -38,13 +38,19 @@ def _get_schema(defaults: dict) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, DEFAULT_NAME)): selector.TextSelector(),
-            vol.Required(CONF_SENSOR): selector.EntitySelector(
+            vol.Required(CONF_SENSOR, default=defaults.get(CONF_SENSOR, "")): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
-            vol.Optional(CONF_HEATER): selector.EntitySelector(
+            vol.Optional(
+                CONF_HEATER,
+                default=defaults.get(CONF_HEATER, ""),
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="switch")
             ),
-            vol.Optional(CONF_COOLER): selector.EntitySelector(
+            vol.Optional(
+                CONF_COOLER,
+                default=defaults.get(CONF_COOLER, ""),
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="switch")
             ),
             vol.Optional(
@@ -146,17 +152,13 @@ class DualLogicThermostatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> SmartThermostatOptionsFlow:
+    ) -> DualLogicThermostatOptionsFlow:
         """Get the options flow for this handler."""
-        return DualLogicThermostatOptionsFlow(config_entry)
+        return DualLogicThermostatOptionsFlow()
 
 
 class DualLogicThermostatOptionsFlow(config_entries.OptionsFlow):
-    """Handle options flow for Smart Thermostat."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize options flow."""
-        self.config_entry = config_entry
+    """Handle options flow for Dual Logic Thermostat."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
