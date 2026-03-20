@@ -32,8 +32,8 @@ config/custom_components/dual_logic_thermostat/
 2. Restart Home Assistant
 3. Go to **Settings → Devices & Services → Add Integration → search "Dual Logic Thermostat"**
 
-### HACS
-Once listed, search for **Dual Logic Thermostat** in the HACS integration store and install from there.
+### HACS (Pending)
+Waiting on HACS integration, once its listed, search for **Dual Logic Thermostat** in the HACS integration store and install from there.
 
 ---
 
