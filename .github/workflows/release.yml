@@ -15,6 +15,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$TAG_NAME" >> $GITHUB_ENV
+
+      - name: Update manifest version
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/g" custom_components/dual_logic_thermostat/manifest.json
+
+      - name: Commit version update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add custom_components/dual_logic_thermostat/manifest.json
+          git commit -m "Update manifest version to $VERSION"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
       - name: Create release zip
         run: |
           zip -r dual_logic_thermostat.zip custom_components/dual_logic_thermostat/
