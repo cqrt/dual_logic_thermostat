@@ -2,7 +2,7 @@
 
 A Home Assistant custom thermostat integration with independent heating and cooling setpoints, tolerance-based hysteresis control, and full compatibility with Google Home and other external services.
 
-[![HACS](https://img.shields.io/badge/HACS-Pending-yellow.svg)](https://github.com/hacs/default)
+[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/release/cqrt/dual_logic_thermostat.svg)](https://github.com/cqrt/dual_logic_thermostat/releases)
 
 ---
@@ -24,7 +24,7 @@ A Home Assistant custom thermostat integration with independent heating and cool
 
 ## Installation
 
-### Manual
+### Option 1 (Manual)
 1. Copy `custom_components/dual_logic_thermostat/` into your HA config directory:
 ```
 config/custom_components/dual_logic_thermostat/
@@ -32,8 +32,27 @@ config/custom_components/dual_logic_thermostat/
 2. Restart Home Assistant
 3. Go to **Settings → Devices & Services → Add Integration → search "Dual Logic Thermostat"**
 
-### HACS (Pending)
-Waiting on HACS integration, once its listed, search for **Dual Logic Thermostat** in the HACS integration store and install from there.
+### Option 2 (HACS Custom Repository - One-Click)
+1. One-click button below to add custom repository
+
+
+[![Install Dual Logic Thermostat as a custom repository](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=cqrt&repository=dual_logic_thermostat&category=integration)
+
+2. Go to **Settings → Devices & Services → Add Integration → search "Dual Logic Thermostat"**
+
+### Option 3 (HACS Custom Repository - Manual)
+If for some reason the one-click does not work for you, you can add it manually as a custom repository:
+
+1. Open HACS
+2. Open the 3 dot menu in upper right.
+3. Click **Custom Repositories**
+4. Enter the repository URL
+   ```
+   https://github.com/cqrt/dual_logic_thermostat
+   ```
+5. Select **Integration** as the type
+6. Click **ADD**
+7. Go to **Settings → Devices & Services → Add Integration → search "Dual Logic Thermostat"**
 
 ---
 
@@ -47,10 +66,10 @@ Waiting on HACS integration, once its listed, search for **Dual Logic Thermostat
 | **Cooling Switch** | ⚠️ | Switch entity for cooler (at least one of heater/cooler required) |
 | **Heating Setpoint** | ✅ | Target temperature for heating in °C (step 0.1) |
 | **Cooling Setpoint** | ✅ | Target temperature for cooling in °C (step 0.1) |
-| **Cold Tolerance** | ✅ | Dead band below heating setpoint (default 0.5°C) |
-| **Hot Tolerance** | ✅ | Dead band above cooling setpoint (default 0.5°C) |
+| **Cold Tolerance** | ✅ | Dead band below heating setpoint (default 0.3°C) |
+| **Hot Tolerance** | ✅ | Dead band above cooling setpoint (default 0.3°C) |
 | **Min Temperature** | ✅ | Minimum selectable temperature (default 7°C) |
-| **Max Temperature** | ✅ | Maximum selectable temperature (default 35°C) |
+| **Max Temperature** | ✅ | Maximum selectable temperature (default 38°C) |
 | **Initial HVAC Mode** | ✅ | HVAC mode on HA startup |
 | **Minimum Cycle Duration** | ✅ | Minimum seconds a switch must stay on or off before changing state. Set to 0 to disable (default) |
 
@@ -72,10 +91,10 @@ Cooler ON  when temp ≥ cool_setpoint + hot_tolerance
 Cooler OFF when temp ≤ cool_setpoint - hot_tolerance
 ```
 
-Example with `heat_setpoint=20`, `cool_setpoint=24`, `tolerance=0.5`:
-- Heater fires at 19.5°C, shuts off at 20.5°C
-- Cooler fires at 24.5°C, shuts off at 23.5°C
-- 20.5–24.5°C is the neutral zone — nothing runs
+Example with `heat_setpoint=22`, `cool_setpoint=24`, `tolerance=0.3`:
+- Heater fires at 21.7°C, shuts off at 22.3°C
+- Cooler fires at 24.3°C, shuts off at 23.7°C
+- 22.3–23.7°C is the neutral zone — nothing runs
 
 ---
 
@@ -102,14 +121,7 @@ When set, each switch must remain in its current state for at least this many se
 
 When the thermostat receives a generic "turn on" command (e.g. from Google Home or an automation), it restores the last active HVAC mode rather than defaulting to a fixed mode. This persists across HA restarts.
 
----
 
-## Google Home Compatibility
-
-The integration is fully compatible with Google Home:
-- Set the thermostat to `heat`, `cool`, or `heat_cool` mode
-- Turn the thermostat off
-- Turn the thermostat on — restores the last active mode
 
 ---
 
